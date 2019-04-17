@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <style>
+        *{
+            margin:0;
+            padding:0;
+        }
+        .header{
+            width: 100vw;
+            height: 10%;
+            background-color: white;
+        }
+        .header h2{
+          text-align:center
+        }
+        .container{
+            width: 100%;
+            height:400px;
+            background-color: #eee;
+        }
+        .container p{
+            margin:5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>群聊（12）</h2>
+    </div>
+    <input type="text" class="username"><button class="join">加入群聊</button>
+    <div class="container">
+
+    </div>
+    <input type="text" class="input"><button class="send">发送</button>
+    <script>
+        var ws= new WebSocket('ws://localhost:80');
+        
+        //向服务器发送数据
+        ws.onopen=function(){ 
+            //加入群聊
+            $('.join').click(()=>{
+                if($('.username').val()==''){return console.log('用户名不能为空')}
+                //禁用 join
+                $('.join').attr('disabled',true);
+                ws.send(JSON.stringify({type:'user',content:$('.username').val()}));
+            })
+            //发送消息
+            $('.send').click(function(){
+                if($('.input').val()==''){return console.log('为空')}
+                else if($('.username').val()==''){return console.log('用户需要先登录')}
+                else{
+                    var inputData={type:'msg',content:$('.input').val(),username:$('.username').val()}
+                     ws.send(JSON.stringify(inputData));
+                }
+
+            })
+
+        }
+
+
+        //客户端接收数据
+        ws.onmessage=function(e){
+            var p =document.createElement('p');
+            p.innerHTML=e.data;
+            $('.container').append(p);
+        }
+    </script>
+</body>
+</html>
